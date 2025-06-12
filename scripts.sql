@@ -530,8 +530,6 @@ insert into pedido (idpedido, data_pedido, valor, idcliente, idtransportadora, i
 insert into pedido (idpedido, data_pedido, valor, idcliente, idtransportadora, idvendedor) values (14,'2008-04-23', 300, 2, 1, 5);
 insert into pedido (idpedido, data_pedido, valor, idcliente, idtransportadora, idvendedor) values (15,'2008-04-25', 200, 11, null, 5);
 
-
-
 select * from pedido;
 
 create table pedido_produto (
@@ -813,7 +811,245 @@ select idpedido, sum (quantidade) from pedido_produto group by idpedido;
 -- 40. O somatório da quantidade de todos os produtos do pedido.
 select sum (valor_unitario) from pedido_produto;
 
+-- RELACIONAMENTOS COM JOINS (JUNÇÕES):
 
+-- LEFT OUTER JOIN: Retorna todos os registros da tabela da esquerda e os correspondentes da direita (ou NULL se não houver)
+
+SELECT
+	cln.nome as cliente,
+	prf.nome as profissao
+FROM
+	cliente as cln
+LEFT OUTER JOIN
+	profissao as prf on cln.idprofissao = prf.idprofissao;
+
+-- RIGHT OUTER JOIN: O contrário do LEFT OUTER JOIN:
+
+SELECT
+	cln.nome as cliente,
+	prf.nome as profissao
+FROM
+	cliente as cln
+RIGHT OUTER JOIN
+	profissao as prf on cln.idprofissao = prf.idprofissao;
+
+-- INNER JOIN (junção interna): Retorna apenas os registros que têm correspondência nas duas tabelas
+
+SELECT
+	cln.nome as cliente,
+	prf.nome as profissao
+FROM
+	cliente as cln
+INNER JOIN
+	profissao as prf on cln.idprofissao = prf.idprofissao;
+
+-- FULL JOIN: Retorna todos os registros de ambas as tabelas, mesmo sem correspondência
+
+SELECT
+	cln.nome as cliente,
+	prf.nome as profissao
+FROM
+	cliente as cln
+FULL JOIN
+	profissao as prf on cln.idprofissao = prf.idprofissao;
+
+
+-- EXERCÍCIOS - JOINS:
+
+-- 1. O nome do cliente, a profissão, a nacionalidade, o logradouro, o número, o complemento, o bairro, o município e a unidade de federação.
+SELECT
+	cln.nome as cliente,
+	prf.nome as profissao,
+	ncn.nome as nacionalidade,
+	cln.logradouro,
+	cln.numero,
+	cmp.nome as complemento,
+	brr.nome as bairro,
+	mnc.nome as municipio,
+	uf.nome as estado,
+	uf.sigla
+
+FROM
+	cliente as cln
+LEFT OUTER JOIN
+	profissao as prf on cln.idprofissao = prf.idprofissao
+LEFT OUTER JOIN
+	nacionalidade as ncn on cln.idnacionalidade = ncn.idnacionalidade
+LEFT OUTER JOIN
+	complemento cmp on cln.idcomplemento = cmp.idcomplemento
+LEFT OUTER JOIN
+	bairro brr on cln.idbairro = brr.idbairro
+LEFT OUTER JOIN
+	municipio mnc on cln.idmunicipio = mnc.idmunicipio
+LEFT OUTER JOIN
+	uf on mnc.iduf = uf.iduf
+
+-- 2. O nome do produto, o valor e o nome do fornecedor.
+SELECT
+	prd.nome as produto,
+	prd.valor,
+	frn.nome as fornecedor
+FROM
+	produto prd
+LEFT OUTER JOIN
+	fornecedor frn on prd.idfornecedor = frn.idfornecedor;	
+
+-- 3. O nome da transportadora e o município.
+SELECT
+	trs.nome as transportadora,
+	mnc.nome as municipio
+FROM
+	transportadora trs
+LEFT OUTER JOIN
+	municipio mnc on trs.idmunicipio = mnc.idmunicipio;
+
+-- 4. A data do pedido, o valor, o nome do cliente, o nome da transportadora e o nome do vendedor.
+SELECT
+	pdd.data_pedido,
+	pdd.valor,
+	cln.nome as cliente,
+	trn.nome as transportadora,
+	vdd.nome as vendedor
+FROM 
+	pedido pdd
+LEFT OUTER JOIN
+	cliente cln on pdd.idcliente = cln.idcliente
+LEFT OUTER JOIN
+	transportadora trn on pdd.idtransportadora = trn.idtransportadora
+LEFT OUTER JOIN
+	vendedor vdd on pdd.idvendedor = vdd.idvendedor;
+
+-- 5. O nome do produto, a quantidade e o valor unitário dos produtos do pedido.
+SELECT
+	pdt.nome as produto,
+	pdp.quantidade,
+	pdp.valor_unitario
+	
+FROM
+	pedido_produto pdp
+LEFT OUTER JOIN
+	produto pdt on pdp.idproduto = pdt.idproduto;
+
+-- 6. O nome dos clientes e a data do pedido dos clientes que fizeram algum pedido (ordenado pelo nome do cliente).
+SELECT
+	cln.nome,
+	pdd.data_pedido
+FROM
+	cliente cln
+INNER JOIN
+	pedido pdd on pdd.idcliente = cln.idcliente
+ORDER BY
+	cln.nome
+	
+-- 7. O nome dos clientes e a data do pedido de todos os clientes, independente se tenham feito pedido (ordenado pelo nome do cliente).
+SELECT
+	cln.nome,
+	pdd.data_pedido
+FROM
+	cliente cln
+LEFT OUTER JOIN
+	pedido pdd on pdd.idcliente = cln.idcliente
+ORDER BY
+	cln.nome
+
+-- 8. O nome da cidade e a quantidade de clientes que moram naquela cidade.
+SELECT
+	mnc.nome as municipio,
+	count (cln.idcliente) as quantidade
+FROM
+	cliente cln
+LEFT OUTER JOIN
+	municipio mnc on cln.idmunicipio = mnc.idmunicipio
+GROUP BY
+	mnc.nome
+
+-- 9. O nome do fornecedor e a quantidade de produtos de cada fornecedor.
+SELECT
+	frn.nome as fornecedor,
+	count (pdd.idproduto) as quantidade
+FROM
+	produto pdd
+LEFT OUTER JOIN
+	fornecedor frn on pdd.idfornecedor = frn.idfornecedor
+GROUP BY
+	frn.nome
+
+-- 10.O nome do cliente e o somatório do valor do pedido (agrupado por cliente).
+SELECT 
+	cln.nome as cliente,
+	sum(pdd.valor) as total
+FROM
+	pedido pdd
+LEFT OUTER JOIN
+	cliente cln on pdd.idcliente = cln.idcliente
+GROUP BY
+	cln.nome
+	
+-- 11.O nome do vendedor e o somatório do valor do pedido (agrupado por vendedor).
+SELECT
+	vnd.nome as vendedor,
+	sum (pdd.valor) as total
+FROM
+	pedido pdd
+LEFT OUTER JOIN
+	vendedor vnd on pdd.idvendedor = vnd.idvendedor
+GROUP BY
+	vnd.nome
+
+-- 12.O nome da transportadora e o somatório do valor do pedido (agrupado por transportadora).
+SELECT
+	trn.nome as transportadora,
+	sum(pdd.valor) as total
+FROM
+	pedido pdd
+INNER JOIN
+	transportadora trn on pdd.idtransportadora = trn.idtransportadora
+GROUP BY
+	trn.nome
+
+-- 13.O nome do cliente e a quantidade de pedidos de cada um (agrupado por cliente).
+SELECT
+	cln.nome as cliente,
+	count(pdd.idpedido) as total
+FROM
+	pedido pdd
+LEFT OUTER JOIN
+	cliente cln on pdd.idcliente = cln.idcliente
+GROUP BY
+	cln.nome
+
+-- 14.O nome do produto e a quantidade vendida (agrupado por produto).
+SELECT
+	pdt.nome as produto,
+	sum(pdp.quantidade) as total
+FROM
+	pedido_produto pdp
+LEFT OUTER JOIN
+	produto pdt on pdp.idproduto = pdt.idproduto
+GROUP BY
+	pdt.nome
+
+-- 15.A data do pedido e o somatório do valor dos produtos do pedido (agrupado pela data do pedido).
+SELECT
+	pdd.data_pedido,
+	sum(pdp.valor_unitario) as total
+FROM
+	pedido_produto pdp
+LEFT OUTER JOIN
+	pedido pdd on pdp.idpedido = pdd.idpedido
+GROUP BY
+	pdd.data_pedido
+
+-- 16.A data do pedido e a quantidade de produtos do pedido (agrupado pela data do pedido).
+SELECT
+	pdd.data_pedido,
+	sum(pdp.quantidade) as quantidade
+FROM
+	pedido_produto pdp
+LEFT OUTER JOIN
+	pedido pdd on pdp.idpedido = pdd.idpedido
+GROUP BY
+	pdd.data_pedido
 
 
 
