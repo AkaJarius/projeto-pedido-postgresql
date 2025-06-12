@@ -261,6 +261,101 @@ insert into bairro (idbairro, nome) values (4, 'Santa Rosa');
 
 select * from bairro;
 
+-- CONCEITO DE LIGAÇÕES DE TABELAS POR MEIO DE CHAVES ESTRANGEIRAS
+
+-- Tabela profissao
+select * from cliente;
+
+-- Comando utilizado para alterar a estrutura da tabela (alter table)
+alter table cliente rename column profissao to idprofissao;
+alter table cliente alter column idprofissao type integer;
+
+-- Estudante -> 1, 9, 10, 12, 15, 17
+-- Engenheiro -> 2
+-- Pedreiro -> 3
+-- Jornalista -> 4, 5
+-- Professor -> 6, 7, 8, 13
+-- Null -> 11, 14
+
+-- Comando para apagar um campo ou coluna na tabela (drop)
+alter table cliente drop idprofissao;
+
+-- Comando para criar um novo campo/coluna na tabela (add)
+alter table cliente add idprofissao integer;
+
+-- Adicionando uma Chave Estrangeira (para o campo idprofissao se relacionar com a tabela profissao)
+-- Foreign Key (cor prata)
+alter table cliente add constraint fk_cln_idprofissao foreign key (idprofissao) references profissao (idprofissao);
+
+-- Atualizando a coluna com os dados da tabela (update)
+update cliente set idprofissao = 1 where idcliente in (1, 9, 10, 12, 15, 17);
+update cliente set idprofissao = 2 where idcliente = 2;
+update cliente set idprofissao = 3 where idcliente = 3;
+update cliente set idprofissao = 4 where idcliente in (4, 5);
+update cliente set idprofissao = 5 where idcliente in (6, 7, 8, 13);
+
+select * from profissao;
+
+-- Tabela nacionalidade
+select * from cliente;
+
+-- Comando para apagar um campo ou coluna na tabela (drop)
+alter table cliente drop nacionalidade;
+
+-- Comando para criar um novo campo/coluna na tabela (add)
+alter table cliente add idnacionalidade integer;
+
+-- Adicionando uma Chave Estrangeira (para o campo idprofissao se relacionar com a tabela profissao)
+-- Foreign Key (cor prata)
+alter table cliente add constraint fk_cln_idnacionalidade foreign key (idnacionalidade) references nacionalidade (idnacionalidade);
+
+-- Atualizando a coluna com os dados da tabela (update)
+update cliente set idnacionalidade = 1 where idcliente in (1, 2, 3, 4, 6, 10, 11, 14);
+update cliente set idnacionalidade = 2 where idcliente in (5, 7);
+update cliente set idnacionalidade = 3 where idcliente = 8;
+update cliente set idnacionalidade = 4 where idcliente in (9, 13);
+
+select * from nacionalidade;
+
+-- Tabela complemento
+select * from cliente;
+
+-- Comando para apagar um campo ou coluna na tabela (drop)
+alter table cliente drop complemento;
+
+-- Comando para criar um novo campo/coluna na tabela (add)
+alter table cliente add idcomplemento integer;
+
+-- Adicionando uma Chave Estrangeira (para o campo idprofissao se relacionar com a tabela profissao)
+-- Foreign Key (cor prata)
+alter table cliente add constraint fk_cln_idcomplemento foreign key (idcomplemento) references complemento (idcomplemento);
+
+-- Atualizando a coluna com os dados da tabela (update)
+update cliente set idcomplemento = 1 where idcliente in (1, 4, 9, 13);
+update cliente set idcomplemento = 2 where idcliente in (2, 3, 7);
+
+select * from complemento;
+
+-- Tabela bairro
+select * from cliente;
+
+-- Comando para apagar um campo ou coluna na tabela (drop)
+alter table cliente drop bairro;
+
+-- Comando para criar um novo campo/coluna na tabela (add)
+alter table cliente add idbairro integer;
+
+-- Adicionando uma Chave Estrangeira (para o campo idprofissao se relacionar com a tabela profissao)
+-- Foreign Key (cor prata)
+alter table cliente add constraint fk_cln_idbairro foreign key (idbairro) references bairro (idbairro);
+
+-- Atualizando a coluna com os dados da tabela (update)
+update cliente set idbairro = 1 where idcliente in (1, 12, 13);
+update cliente set idbairro = 2 where idcliente in (2, 3, 6, 8, 9);
+update cliente set idbairro = 3 where idcliente in (4, 5);
+update cliente set idbairro = 4 where idcliente = 7;
+
+select * from bairro;
 
 
 
