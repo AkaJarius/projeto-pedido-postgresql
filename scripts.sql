@@ -1173,13 +1173,118 @@ SELECT
 FROM
 	produto;
 
+-- SUBCONSULTAS (para consultas mais complexas)
+
+-- Selecionar a data do pedido e o valor onde o valor seja maior que a média dos valores de todos os pedidos
+SELECT
+	data_pedido,
+	valor
+FROM
+	pedido
+WHERE
+	valor > (SELECT avg(valor) FROM pedido)
+
+-- Exemplo com count
+SELECT
+	pdd.data_pedido,
+	pdd.valor,
+	(SELECT sum(quantidade) FROM pedido_produto pdp WHERE pdp.idpedido = pdd.idpedido) as Total
+FROM
+	pedido pdd
+	
+SELECT * FROM pedido_produto
+
+-- Exemplo com update (alterar o preço dos pedidos que forem maior do que a media de todos os pedidos em 5%)
+SELECT * FROM pedido;
+
+UPDATE pedido set valor = valor + ((valor * 5) / 100)
+WHERE valor > (SELECT avg(valor) FROM pedido)
 
 
+-- EXERCICIOS - SUBCONSULTAS
+
+-- 1. O nome dos clientes que moram na mesma cidade do Manoel. Não deve ser mostrado o Manoel.
+SELECT
+	nome,
+	idmunicipio
+FROM
+	cliente
+WHERE
+	idmunicipio = (SELECT idmunicipio FROM cliente WHERE nome = 'Manoel')
+AND
+	idcliente <> 1;
+
+-- 2. A data e o valor dos pedidos que o valor do pedido seja menor que a média de todos os pedidos.
+SELECT
+	data_pedido,
+	valor
+FROM
+	pedido
+WHERE
+	valor < (SELECT avg(valor) FROM pedido)
+
+-- 3. A data,o valor, o cliente e o vendedor dos pedidos que possuem 2 ou mais produtos.
+SELECT
+	pdd.data_pedido,
+	pdd.valor,
+	cln.nome as cliente,
+	vnd.nome as vendedor,
+	(SELECT sum(quantidade) FROM pedido_produto pdp WHERE pdp.idpedido = pdd.idpedido)
+FROM
+	pedido pdd
+LEFT OUTER JOIN
+	cliente cln on pdd.idcliente = cln.idcliente
+LEFT OUTER JOIN
+	vendedor vnd on pdd.idvendedor = vnd.idvendedor
+WHERE
+	(SELECT sum(quantidade) FROM pedido_produto pdp WHERE pdp.idpedido = pdd.idpedido) >= 2;
+	
+-- 4. O nome dos clientes que moram na mesma cidade da transportadora BSTransportes.
+SELECT
+	nome,
+	idmunicipio
+FROM
+	cliente
+WHERE
+	idmunicipio = (SELECT idmunicipio FROM transportadora WHERE idtransportadora = 1);
+
+-- 5. O nome do cliente e o município dos clientes que estão localizados no mesmo município de qualquer uma das transportadoras.
+SELECT
+	nome,
+	idmunicipio
+FROM 
+	cliente
+WHERE
+	idmunicipio in (SELECT distinct(idmunicipio) FROM transportadora)
+
+-- 6. Atualizar o valor do pedido em 5% para os pedidos que o somatório do valor total dos produtos daquele pedido seja maior que a média do valor total de todos os produtos de todos os pedidos.
+UPDATE
+	pedido
+SET
+	valor = valor + ((valor * 5) / 100)
+WHERE
+	(SELECT SUM (pdp.valor_unitario) FROM pedido_produto pdp WHERE pdp.idpedido = pedido.idpedido) > (SELECT AVG(valor_unitario) FROM pedido_produto);
 
 
+select * from pedido
 
+-- 7. O nome do cliente e a quantidade de pedidos feitos pelo cliente.
+SELECT
+	cln.nome,
+	(SELECT COUNT(idpedido) FROM pedido pdd WHERE pdd.idcliente = cln.idcliente) as total
+FROM
+	cliente cln
 
-
+-- 8. Para revisar, refaça o exercício anterior (número 07) utilizando group by e mostrando somente os clientes que fizeram pelo menos um pedido.
+SELECT
+	cln.nome as cliente,
+	COUNT (pdd.idpedido) as total
+FROM 
+	pedido pdd
+LEFT OUTER JOIN
+	cliente cln on pdd.idcliente = cln.idcliente
+GROUP BY
+	cln.nome
 
 
 
