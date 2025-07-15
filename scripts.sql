@@ -1286,15 +1286,156 @@ LEFT OUTER JOIN
 GROUP BY
 	cln.nome
 
+-- VIEWS
+-- No PostgreSQL, uma view (ou visão) é uma consulta armazenada no banco de dados, que pode ser tratada como uma tabela virtual.
+
+-- Criando uma view:
+CREATE VIEW cliente_profissao AS
+SELECT
+	cln.nome as cliente,
+	cln.cpf,
+	prf.nome as profissao
+FROM
+	cliente cln
+LEFT OUTER JOIN
+	profissao prf on cln.idprofissao = prf.idprofissao
+
+-- Filtrando a tabela pelo cliente cuja profissão é professor:
+SELECT
+	cliente
+FROM
+	cliente_profissao
+WHERE 
+	profissao = 'Professor'
+
+-- Deletar uma view:
+DROP VIEW cliente_profissao;
 
 
+-- EXERCICIOS - VIEWS
 
+-- 1. O nome, a profissão, a nacionalidade, o complemento, o município, a unidade de federação, o bairro, o CPF,o RG, a data de nascimento, o gênero (mostrar “Masculino” ou “Feminino”), o logradouro, o número e as observações dos clientes.
 
+CREATE VIEW cliente_dados AS
+SELECT
+	cln.nome as cliente,
+	prf.nome as profissao,
+	ncn.nome as nacionalidade,
+	cmp.nome as complemento,
+	mnc.nome as municipio,
+	uf.nome as unidade_federacao,
+	brr.nome as bairro,
+	cln.rg,
+	cln.cpf,
+	cln.data_nascimento,
+	CASE cln.genero
+		WHEN 'M' THEN 'Masculino'
+		WHEN 'F' THEN 'Feminino'
+	END as genero,
+	cln.logradouro,
+	cln.numero,
+	cln.observacoes
+	
+FROM
+	cliente cln
+LEFT OUTER JOIN
+	profissao prf on cln.idprofissao = prf.idprofissao
+LEFT OUTER JOIN
+	nacionalidade ncn on cln.idnacionalidade = ncn.idnacionalidade
+LEFT OUTER JOIN
+	complemento cmp on cln.idcomplemento = cmp.idcomplemento
+LEFT OUTER JOIN
+	municipio mnc on cln.idmunicipio = mnc.idmunicipio
+LEFT OUTER JOIN
+	uf on mnc.iduf = uf.iduf
+LEFT OUTER JOIN
+	bairro brr on cln.idbairro = brr.idbairro
 
+SELECT * FROM cliente_dados;
 
+-- 2. O nome do município e o nome e a sigla da unidade da federação.
 
+CREATE VIEW municipio_uf AS
+SELECT
+	mnc.nome as municipio,
+	uf.nome as unidade_federacao,
+	uf.sigla
+FROM
+	municipio mnc
+LEFT OUTER JOIN
+	uf on mnc.iduf = uf.iduf
 
+SELECT * FROM municipio_uf;
 
+-- 3. O nome do produto, o valor e o nome do fornecedor dos produtos.
+
+CREATE VIEW produto_fornecedor AS
+SELECT
+	prd.nome as produto,
+	prd.valor,
+	frn. nome as fornecedor
+FROM
+	produto prd
+LEFT OUTER JOIN
+	fornecedor frn on prd.idfornecedor = frn.idfornecedor
+
+SELECT * FROM produto_fornecedor;
+
+-- 4. O nome da transportadora, o logradouro, o número, o nome da unidade de federação e a sigla da unidade de federação das transportadoras.
+
+CREATE VIEW transportadora_uf AS
+SELECT
+	trn.nome as transportadora,
+	trn.logradouro,
+	trn.numero,
+	uf.nome as unidade_federacao,
+	uf.sigla
+FROM
+	transportadora trn
+LEFT OUTER JOIN
+	municipio mnc on trn.idmunicipio = mnc.idmunicipio
+LEFT OUTER JOIN
+	uf on mnc.iduf = uf.iduf
+
+SELECT * FROM transportadora_uf;
+
+-- 5. A data do pedido, o valor, o nome da transportadora, o nome do cliente e o nome do vendedor dos pedidos.
+
+CREATE VIEW dados_pedido AS
+SELECT
+	pdd.data_pedido,
+	pdd.valor,
+	trn.nome as transportadora,
+	cln.nome as cliente,
+	vnd.nome as vendedor
+FROM
+	pedido pdd
+LEFT OUTER JOIN
+	transportadora trn on pdd.idtransportadora = trn.idtransportadora
+LEFT OUTER JOIN
+	cliente cln on pdd.idcliente = cln.idcliente
+LEFT OUTER JOIN
+	vendedor vnd on pdd.idvendedor = vnd.idvendedor
+
+SELECT * FROM dados_pedido;
+
+-- 6. O nome do produto, a quantidade, o valor unitário e o valor total dos produtos do pedido.
+
+CREATE VIEW produto_pedido AS
+SELECT
+       pdt.nome as produto,
+       pdp.quantidade as quantidade,
+       pdp.valor_unitario as valor_unitario,
+       pdd.valor as valor_total
+
+FROM 
+	pedido_produto pdp
+LEFT OUTER JOIN
+	produto pdt on pdt.idproduto = pdp.idproduto
+LEFT OUTER JOIN
+	pedido pdd on pdd.idpedido = pdp.idpedido
+
+SELECT * FROM produto_pedido;
 
 
 
