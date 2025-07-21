@@ -1567,12 +1567,36 @@ create sequence produto_id_seq minvalue 8
 alter table produto alter idproduto set default nextval('produto_id_seq')
 alter sequence produto_id_seq owned by produto.idproduto
 
+-- CAMPOS DEFAULT:
+/* No PostgreSQL, o conceito de campo DEFAULT é utilizado para atribuir um valor padrão a uma coluna quando nenhum valor é fornecido explicitamente durante uma inserção de dados.
+Isso pode ser útil para garantir que certas colunas sempre tenham um valor, mesmo quando o usuário não especifica um valor para elas.
+Útil na integração da base de dados com uma linguagem de programação afim de evitar erros ao fazer algum tipo de cálculo em campos NULL. */
 
+alter table pedido alter column data_pedido set default current_date;
+alter table pedido alter column valor set default 0;
+insert into pedido (idcliente, idvendedor) values (1, 1);
+insert into pedido (idcliente, idvendedor, data_pedido, valor) values (1, 1, '2022-10-10', 234);
 
+select * from pedido;
 
+-- Exercícios valores DEFAULT
 
+-- 1. Adicione valores default na tabela de produtos do pedido
+	-- a. Quantidade com o valor 1
+	-- b. Valor unitário com o valor 0
+alter table pedido_produto alter column quantidade set default 1;
+alter table pedido_produto alter column valor_unitario set default 0;
 
+insert into pedido_produto (idpedido, idproduto) values (1, 3);
+insert into pedido_produto (idpedido, idproduto, quantidade, valor_unitario) values (1, 4, 5, 100);
+select * from pedido_produto;
 
+-- 2. Adicione valor default na tabela de produtos
+	-- a. Valor com o valor 0
+alter table produto alter column valor set default 0;
+insert into produto (nome, idfornecedor) values ('Teste default 1', 1, 50);
+insert into produto (nome, idfornecedor, valor) values ('Teste default 2', 1, 50);
+select * from produto;
 
 
 
