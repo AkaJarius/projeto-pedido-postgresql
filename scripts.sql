@@ -1598,12 +1598,25 @@ insert into produto (nome, idfornecedor) values ('Teste default 1', 1, 50);
 insert into produto (nome, idfornecedor, valor) values ('Teste default 2', 1, 50);
 select * from produto;
 
+-- ÍNDICES
+/*
+No PostgreSQL, um índice é uma estrutura de dados especial que melhora a velocidade de busca e recuperação de registros em uma tabela.
+Ele funciona como um índice em um livro: 
+ao invés de percorrer todos os dados de uma tabela para encontrar um valor, o PostgreSQL utiliza o índice para localizar rapidamente os registros.
+A criação de índices é uma técnica essencial para otimizar a performance de consultas em bancos de dados.
+*/
 
+-- Exercícios índices:
+-- 1. Adicione índices nas seguintes tabelas e campos:
 
+-- a. Cliente - nome
+CREATE INDEX idx_cln_nome on cliente (nome);
 
+-- b. Pedido – data do pedido
+CREATE INDEX idx_data_pedido on pedido (data_pedido);
 
-
-
+-- c. Produto – nome
+CREATE INDEX idx_prd_nome on produto (nome);
 
 
 
