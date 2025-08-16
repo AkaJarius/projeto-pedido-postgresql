@@ -1619,15 +1619,68 @@ CREATE INDEX idx_data_pedido on pedido (data_pedido);
 CREATE INDEX idx_prd_nome on produto (nome);
 
 
+-- FUNÇÕES:
+/*
+Uma função no PostgreSQL é um bloco de código que realiza uma tarefa específica e retorna um resultado. 
+Funções podem ser usadas para automatizar tarefas repetitivas, simplificar consultas complexas e organizar lógica de negócio no banco. 
+Elas podem receber parâmetros, realizar cálculos ou manipulações e retornar valores de diversos tipos (números, texto, booleanos, tabelas, etc.).
+*/
 
+-- Estrutura básica de uma função:
+CREATE OR REPLACE FUNCTION formata_moeda(valor float)
+RETURNS varchar(20)
+LANGUAGE plpgsql
+AS $$
+	BEGIN
+		RETURN concat('R$ ', round(cast(valor as numeric), 2));
+	END;
+$$;
 
+-- TESTES:
+SELECT valor, formata_moeda(valor) FROM pedido;
+SELECT valor, formata_moeda(valor) FROM produto;
 
+-- Exemplo 2:
+CREATE OR REPLACE FUNCTION get_nome_by_id(idc integer)
+RETURNS varchar(50)
+LANGUAGE plpgsql
+AS $$
+	DECLARE r varchar (50);
+	BEGIN
+		SELECT nome INTO r FROM cliente WHERE idcliente = idc;
+		RETURN r;
+	END;
+$$;
 
+-- TESTE:
+SELECT data_pedido, valor, idcliente, get_nome_by_id(idcliente) FROM pedido;
 
+-- EXECÍCIOS:
 
+-- 1. Crie uma função que receba como parâmetro o ID do pedido e retorne o valor total deste pedido:
+CREATE OR REPLACE FUNCTION get_valor_pedido (idpdd integer)
+RETURNS varchar(20)
+LANGUAGE plpgsql
+AS $$
+	BEGIN
+		RETURN (SELECT formata_moeda(pdd.valor) FROM pedido pdd WHERE pdd.idpedido = idpdd);
+	END;
+$$;
 
+SELECT get_valor_pedido(idpedido) FROM pedido;
 
+-- 2. Crie uma função chamada “maior”, que quando executada retorne o pedido com o maior valor:
+CREATE OR REPLACE FUNCTION get_maior_pedido()
+RETURNS integer
+LANGUAGE plpgsql
+AS $$
+	BEGIN
+		RETURN (SELECT idpedido FROM pedido WHERE valor = (SELECT MAX(valor) FROM pedido));
+	END;
+$$;
 
+SELECT get_maior_pedido() FROM pedido;
+SELECT get_maior_pedido();
 
 
 
