@@ -1726,6 +1726,65 @@ $$;
 CALL apagar_produto (9);
 SELECT * FROM produto;
 
+-- TRIGGERS:
+/*
+1. DEFINIÇÃO
+Uma Trigger (ou gatilho) é um mecanismo que permite executar automaticamente um bloco de código ou procedimento quando ocorre um evento específico em uma tabela.
+
+- Eventos comuns: INSERT, UPDATE, DELETE.
+- Pode ser usada para automatizar validações, auditorias, logs ou ações complexas sem intervenção manual.
+- Normalmente, a Trigger chama uma função (function) que contém a lógica a ser executada.
+
+Exemplo conceitual:
+“Quando um novo cliente for inserido, registre automaticamente a data da criação e envie uma notificação.”
+
+2. ESTRUTURA
+Para criar uma Trigger, você precisa de duas partes:
+
+- Função (Trigger Function) – contém o que será executado.
+- Trigger – define quando e em qual tabela a função será disparada.
+
+3. TIPOS
+- BEFORE Trigger: executa antes da operação (ideal para validações ou ajustes de dados).
+- AFTER Trigger: executa depois da operação (ideal para auditoria, logs ou notificações).
+- INSTEAD OF Trigger: usado principalmente em views, substitui a operação original.
+*/
+
+-- Criando uma tabela para Exemplo:
+CREATE TABLE bairro_auditoria(
+	idbairro integer NOT NULL,
+	data_criacao timestamp NOT NULL
+)
+
+-- Função para Trigger:
+CREATE OR REPLACE FUNCTION bairro_log()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	INSERT INTO bairro_auditoria (idbairro, data_criacao) VALUES (new.idbairro, current_timestamp);
+    RETURN NEW;  -- NEW ou OLD dependendo do contexto
+END;
+$$;
+
+-- RETURNS TRIGGER → obrigatório para funções de Trigger.
+-- NEW → representa a nova linha que está sendo inserida ou atualizada.
+-- OLD → representa a linha antiga (no caso de UPDATE ou DELETE).
+
+-- Criando a Trigger:
+CREATE OR REPLACE TRIGGER log_bairro_trigger
+AFTER INSERT OR UPDATE ON bairro
+FOR EACH ROW
+EXECUTE PROCEDURE bairro_log();
+
+-- AFTER → a Trigger será executada depois do evento (também existe BEFORE).
+-- FOR EACH ROW → executa a Trigger para cada linha afetada.
+
+CALL insere_bairro ('Teste 10');
+CALL insere_bairro ('Teste 20');
+CALL insere_bairro ('Teste 30');
+SELECT * FROM bairro;
+SELECT * FROM bairro_auditoria;
 
 
 
