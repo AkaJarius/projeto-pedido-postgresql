@@ -1619,7 +1619,7 @@ CREATE INDEX idx_data_pedido on pedido (data_pedido);
 CREATE INDEX idx_prd_nome on produto (nome);
 
 
--- FUNÇÕES:
+-- FUNÇÕES (FUNCTION):
 /*
 Uma função no PostgreSQL é um bloco de código que realiza uma tarefa específica e retorna um resultado. 
 Funções podem ser usadas para automatizar tarefas repetitivas, simplificar consultas complexas e organizar lógica de negócio no banco. 
@@ -1681,6 +1681,51 @@ $$;
 
 SELECT get_maior_pedido() FROM pedido;
 SELECT get_maior_pedido();
+
+-- STORED PROCEDURES (Procedimento Armazenado):
+/*
+Uma Stored Procedure (Procedimento Armazenado) é um bloco de código SQL que é armazenado no banco de dados e executado sob demanda. Ela pode:
+
+- Receber parâmetros de entrada;
+- Executar operações complexas (consultas, atualizações, inserções, deleções);
+- Realizar transações (commit, rollback);
+- Retornar resultados opcionais, embora não obrigatoriamente (ao contrário de funções que sempre retornam algo).
+
+Em outras palavras, procedures são orientadas à execução de tarefas e manipulação de dados, enquanto funções geralmente retornam um valor ou conjunto de valores.
+*/
+
+-- Sintaxe Básica de Stored Procedure:
+CREATE OR REPLACE PROCEDURE insere_bairro (nome_bairro varchar(30))
+LANGUAGE SQL
+AS $$
+	INSERT INTO bairro(nome) VALUES (nome_bairro);
+$$;
+
+CALL insere_bairro('Teste procedure');
+SELECT * FROM bairro;
+
+-- EXERCÍCIOS:
+/* 1. Crie uma stored procedure que receba como parâmetro o ID do produto e o percentual de aumento, 
+e reajuste o preço somente deste produto de acordo com o valor passado como parâmetro: */
+CREATE OR REPLACE PROCEDURE reajusta_produto(idp integer, percentual float)
+LANGUAGE SQL
+AS $$
+	UPDATE produto SET valor = valor + ((valor * percentual) / 100) WHERE idproduto = idp;
+$$;
+
+CALL reajusta_produto (1, 10);
+SELECT * FROM produto;
+
+-- 2. Crie uma stored procedure que receba como parâmetro o ID do produto e exclua da base de dados somente o produto com o ID correspondente:
+CREATE OR REPLACE PROCEDURE apagar_produto(idp integer)
+LANGUAGE SQL
+AS $$
+	DELETE FROM produto WHERE idproduto = idp;
+$$;
+
+CALL apagar_produto (9);
+SELECT * FROM produto;
+
 
 
 
