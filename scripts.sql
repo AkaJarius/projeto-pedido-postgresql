@@ -1786,8 +1786,56 @@ CALL insere_bairro ('Teste 30');
 SELECT * FROM bairro;
 SELECT * FROM bairro_auditoria;
 
+-- EXERCÍCIOS:
 
+-- 1. Crie uma tabela chamada PEDIDOS_APAGADOS:
+CREATE TABLE pedidos_apagados (
+	idpedido integer not null,
+	idcliente integer not null,
+	idtransportadora integer,
+	idvendedor integer not null,
+	data_pedido date not null,
+	valor float not null,
+	data_apagado date not null
+)
 
+ALTER TABLE pedidos_apagados ALTER COLUMN data_apagado TYPE timestamp;
+
+-- 2. Faça uma trigger que quando um pedido for apagado, todos os seus dados devem ser copiados para a tabela PEDIDOS_APAGADOS:
+
+-- Função para Trigger:
+CREATE OR REPLACE FUNCTION pedido_log()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+	BEGIN
+		INSERT INTO pedidos_apagados (idpedido, idcliente, idtransportadora, idvendedor, data_pedido, valor, data_apagado)
+		VALUES (old.idpedido, old.idcliente, old.idtransportadora, old.idvendedor, old.data_pedido, old.valor, current_timestamp);
+		RETURN OLD;
+	END;
+$$;
+
+-- Criando a Trigger:
+CREATE OR REPLACE TRIGGER log_pedido_trigger
+BEFORE DELETE ON pedido
+FOR EACH ROW
+EXECUTE PROCEDURE pedido_log();
+
+-- Executando e verificando:
+-- Obs: Só conseguimos apagar pedidos que não possuem produtos, por conta das restrições de chave estrangeira.
+
+SELECT * FROM pedido;
+
+-- Pedidos que não possuem produtos ou vinculo com a tabela de pedido_produto:
+SELECT idpedido FROM pedido WHERE idpedido NOT IN (SELECT idpedido FROM pedido_produto);
+
+-- Deletando os pedidos:
+DELETE FROM pedido WHERE idpedido = 16;
+DELETE FROM pedido WHERE idpedido = 17;
+DELETE FROM pedido WHERE idpedido = 18;
+
+-- Verificando os dados na nova tabela:
+SELECT * FROM pedidos_apagados;
 
 
 
