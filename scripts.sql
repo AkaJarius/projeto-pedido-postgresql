@@ -1956,6 +1956,114 @@ alter table uf alter column sigla type sigla;
 alter table vendedor alter column nome type nome_medio;
 
 
+-- USUÁRIOS E PERMISSÕES:
+/*
+1. Definição
+
+No PostgreSQL, usuários (ou roles) são entidades que podem se conectar ao banco de dados e realizar ações, e permissões definem o que esses usuários podem ou não fazer.
+
+- Usuário/role → identidade no banco, pode ser humano ou aplicação.
+- Permissões (privileges) → ações que um usuário pode executar, como: SELECT, INSERT, UPDATE, DELETE, CREATE, CONNECT.
+- PostgreSQL unifica usuários e roles, usando o comando CREATE ROLE.
+
+2. Tipos de Usuários/Roles
+
+I. Superuser:
+
+- Tem todos os privilégios, sem restrições.
+- Ex.: postgres é o superuser padrão.
+
+II. Role com LOGIN:
+
+- Pode se conectar ao banco de dados.
+- Ex.: usuário de aplicação ou pessoa que acessa o banco.
+
+III. Role sem LOGIN:
+
+- Usada como grupo de permissões, atribuída a outros usuários.
+*/
+
+-- 3. Comandos Básicos
+
+-- 3.1. Criando Perfis / Role sem LOGIN:
+
+CREATE ROLE gerente;
+CREATE ROLE estagiario;
+
+-- 3.2. Criando Usuários / Role com Login:
+
+CREATE ROLE maria login PASSWORD '123' IN ROLE gerente;
+CREATE ROLE pedro login PASSWORD '321' IN ROLE estagiario;
+
+-- 4. Permissões (Privileges)
+
+-- Você pode conceder permissões em tabelas, bancos, schemas ou funções.
+
+-- Permite escrita, leitura e revogar permissão:
+GRANT SELECT, INSERT, UPDATE, DELETE ON bairro, cliente, complemento, fornecedor, municipio, nacionalidade, pedido, pedido_produto, produto, profissao,
+transportadora, uf, vendedor TO gerente WITH GRANT OPTION;
+
+-- Permissões em Schemas:
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO gerente;
+
+-- Revogar permissões:
+REVOKE DELETE ON ALL ON ALL SEQUENCES IN SCHEMA public TO gerente;
+
+
+-- Permite apenas leitura:
+GRANT SELECT ON cliente_dados, dados_pedido TO estagiario;
+
+-- Exercícios usuários e permissões
+
+-- 1. Crie um novo papel chamado “atendente”:
+CREATE ROLE atendente;
+
+-- 2. Defina somente permissões para o novo papel poder selecionar e incluir novos pedidos (tabelas pedido e pedido_produto). O restante do acesso deve estar bloqueado:
+GRANT SELECT, INSERT ON pedido, pedido_produto TO atendente WITH GRANT OPTION;
+GRANT ALL ON pedido_id_seq TO atendente WITH GRANT OPTION;
+
+-- 3. Crie um novo usuário associado ao novo papel:
+CREATE ROLE joao login PASSWORD '123' IN ROLE atendente;
+
+-- 4. Realize testes para verificar se as permissões foram aplicadas corretamente:
+-- Testes ok.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
