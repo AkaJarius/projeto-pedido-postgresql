@@ -2028,13 +2028,51 @@ CREATE ROLE joao login PASSWORD '123' IN ROLE atendente;
 -- 4. Realize testes para verificar se as permissões foram aplicadas corretamente:
 -- Testes ok.
 
+-- TRANSAÇÕES
+/*
+Definição:
 
+Uma transação no PostgreSQL (ou em qualquer banco de dados relacional) é um conjunto de operações SQL que são tratadas como uma única unidade de trabalho. 
+Ou seja, uma transação garante que todas as operações de inserção, atualização, deleção ou leitura sejam executadas completamente, ou então, nenhuma delas será aplicada.
+*/
 
+-- Criando uma tabela para exemplificação:
+CREATE TABLE conta (
+	idconta serial not null,
+	cliente nome_medio not null,
+	saldo moeda not null default 0,
+	
+	constraint pk_cnt_idconta primary key (idconta)
+)
 
+SELECT * FROM conta;
 
+INSERT INTO conta (cliente, saldo) VALUES ('Cliente 1', 1000);
+INSERT INTO conta (cliente, saldo) VALUES ('Cliente 2', 500);
 
+UPDATE conta SET saldo = saldo - 100 WHERE idconta = 1;
+UPDATE conta SET saldo = saldo + 100 WHERE idconta = 2;
 
+/* Comandos Relacionados a Transações no PostgreSQL
+	I. Iniciar uma Transação (BEGIN)
+A transação começa com o comando BEGIN, que sinaliza o início das operações. 
 
+	II. Confirmar a Transação (COMMIT)
+Se todas as operações forem bem-sucedidas e você quiser confirmar as alterações, use o comando COMMIT: */
+BEGIN;
+	UPDATE conta SET saldo = saldo - 100 WHERE idconta = 1;
+	UPDATE conta SET saldo = saldo + 100 WHERE idconta = 2;
+COMMIT;
+-- O COMMIT faz com que todas as mudanças realizadas durante a transação se tornem permanentes no banco de dados.
+
+/*	III. Desfazer a Transação (ROLLBACK)
+
+Caso algo dê errado ou você queira desfazer todas as alterações realizadas, use o comando ROLLBACK: */
+BEGIN;
+	UPDATE conta SET saldo = saldo - 100 WHERE idconta = 1;
+	UPDATE conta SET saldo = saldo + 100 WHERE idconta = 2;
+ROLLBACK;
+-- O ROLLBACK desfaz todas as alterações feitas desde o BEGIN, retornando o banco ao estado anterior à transação.
 
 
 
